@@ -80,12 +80,13 @@
 
   # Create groups
   users.groups.i2c = {}; #For monitor control
+  users.groups.plugdev = {}; #For usb cam access
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.aaron = {
     isNormalUser = true;
     description = "aaron";
-    extraGroups = [ "networkmanager" "wheel" "i2c" ];
+    extraGroups = [ "networkmanager" "wheel" "i2c" "plugdev" ];
     packages = with pkgs; [
       ddcutil
       kdePackages.kate
@@ -113,7 +114,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
   gparted
-  remmina
+  freerdp
   helvum
   streamcontroller
   wofi # for hyprland
@@ -124,6 +125,8 @@
   # Additonal UDEV Rules
   services.udev.extraRules = ''
     KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
+    SUBSYSTEM=="usb", ATTR{idVendor}=="1d6b", ATTR{idProduct}=="0002", MODE="0660", GROUP="plugdev"
+    SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="082d", MODE="0660", GROUP="plugdev"
   '';
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
