@@ -26,8 +26,9 @@
 
     # Auto mount the second drive
     fileSystems."/mnt/Extend4More" = {
-      device = "/dev/disk/by-uuid/cb06cb50-8f73-4ddc-b858-553d9fabff6d";
+      device = "/dev/disk/by-uuid/bf2abf8a-e3c0-4e38-b611-7fc68aa69c81";
       fsType = "ext4";
+      options = [ "nofail" ];
     };
 
   swapDevices = [ ];

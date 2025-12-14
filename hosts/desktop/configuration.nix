@@ -14,14 +14,17 @@
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 10; # number of generations shown
+  boot.loader.systemd-boot.configurationLimit = 5; # number of generations shown
   boot.loader.efi.canTouchEfiVariables = true;
+
+  # Set CPU to Performance
+  powerManagement.cpuFreqGovernor = "performance";
 
   # Garbage Collection on generations
   nix.gc = {
     automatic = true;
     dates = "daily";
-    options = "--delete-older-than +5";
+    options = "--delete-older-than 45d";
   };
 
   # Setup Hyprland
@@ -76,9 +79,27 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     wireplumber.enable = true;
+
+    # Headphones loopback setup 
+    extraConfig.pipewire."99-loopback.conf" = ''
+      context.modules = [
+        {
+          name = libpipewire-module-loopback
+          args = {
+            capture.props = {
+              target.object = "alsa_input.usb-TC-Helicon_GoXLR-00.HiFi__Line5__source"
+            }
+            playback.props = {
+              target.object = "alsa_output.usb-Topping_DX5-00.HiFi__Headphones__sink"
+            }
+          }
+        }
+      ]
+    '';
   };
 
   # Create groups
+  users.groups.realtime = {}; # Needed for realtime audio
   users.groups.i2c = {}; #For monitor control
   users.groups.plugdev = {}; #For usb cam access
 
@@ -86,13 +107,20 @@
   users.users.aaron = {
     isNormalUser = true;
     description = "aaron";
-    extraGroups = [ "networkmanager" "wheel" "i2c" "plugdev" ];
+    extraGroups = [ "networkmanager" "wheel" "realtime" "i2c" "plugdev" ];
     packages = with pkgs; [
       ddcutil
+      ffmpeg
       kdePackages.kate
     #  thunderbird
     ];
   };
+
+  # PAM permissions to run audio threads up to 95
+  security.pam.loginLimits = [
+    { domain = "@realtime"; type = "hard"; item = "rtprio"; value = "95"; }
+    { domain = "@realtime"; type = "soft"; item = "rtprio"; value = "95"; }
+  ];
 
   #Stylix Scheme
   stylix.enable = true;
