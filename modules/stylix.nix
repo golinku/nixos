@@ -14,13 +14,6 @@
       name = "Vanilla-DMZ";
       size = 24;
     };
-
-    fonts = {
-      monospace = {
-        package = pkgs.nerdfonts;
-        name = "FiraCode Nerd Font";
-      };
-    };
   };
 }
 

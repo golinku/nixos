@@ -8,14 +8,11 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../../modules/nvidia.nix
-      ../../modules/gaming.nix
-      ../../modules/flatpak.nix
     ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 10; # number of generations shown
+  boot.loader.systemd-boot.configurationLimit = 2; # number of generations shown
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Set CPU to Performance
@@ -27,9 +24,6 @@
     dates = "daily";
     options = "--delete-older-than 45d";
   };
-
-  # Setup Hyprland
-  programs.hyprland.enable = true;
 
   # Set Hardware Clock to Local Time
   time.hardwareClockInLocalTime = true;
@@ -60,12 +54,6 @@
   # Push locale to systemd
   systemd.settings.Manager.DefaultEnvironment = "LANG=en_US.UTF-8";
 
-  # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm = {
-    enable = true;
-  };
-  services.desktopManager.plasma6.enable = true;
-
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -84,23 +72,19 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     wireplumber.enable = true;
+  };
 
-    # Headphones loopback setup 
-    extraConfig.pipewire."99-loopback.conf" = ''
-      context.modules = [
-        {
-          name = libpipewire-module-loopback
-          args = {
-            capture.props = {
-              target.object = "alsa_input.usb-TC-Helicon_GoXLR-00.HiFi__Line5__source"
-            }
-            playback.props = {
-              target.object = "alsa_output.usb-Topping_DX5-00.HiFi__Headphones__sink"
-            }
-          }
-        }
-      ]
-    '';
+  # Systemd service to pipe to headphones from Sampler capture
+  systemd.user.services.headphones = {
+    description = "Pipe sampler into headphones";
+    after = [ "graphical-session.target" "pipewire.service" ];
+    wantedBy = [ "default.target" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      Environment = "PATH=/run/current-system/sw/bin";
+      ExecStart = "${config.users.users.aaron.home}/.local/bin/headphones.sh";
+    };
   };
 
   # Create groups
@@ -116,8 +100,7 @@
     packages = with pkgs; [
       ddcutil
       ffmpeg
-      kdePackages.kate
-    #  thunderbird
+      pulseaudio
     ];
   };
 
@@ -127,12 +110,8 @@
     { domain = "@realtime"; type = "soft"; item = "rtprio"; value = "95"; }
   ];
 
-  #Stylix Scheme
-  stylix.enable = true;
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/nord.yaml";
-
   # Install firefox.
-  programs.firefox.enable = true;
+  programs.firefox.enable = true; # should not be here
 
   # Install goxlr utility
   services.goxlr-utility.enable = true;
@@ -146,12 +125,11 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  linuxKernel.packages.linux_zen.xpadneo
-  gparted
-  freerdp
-  helvum
-  streamcontroller
-  wofi # for hyprland
+    linuxKernel.packages.linux_zen.xpadneo
+    gparted # should not be here
+    freerdp # should not be here
+    helvum
+    streamcontroller
   ];
 
   # List services that you want to enable:

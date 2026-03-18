@@ -2,10 +2,6 @@
 
 {
 
-  # Boot to TTY (no SDDM/LightDM)
-  services.xserver.enable = false;
-  services.displayManager.enable = false;
-
   # Wayland + Niri
   programs.niri.enable = true;
 
@@ -23,6 +19,10 @@
   environment.systemPackages = with pkgs; [
     fuzzel
     waybar
+    mako
+    swaylock
+    swayidle
+    xwayland-satellite
   ];
 }
 
