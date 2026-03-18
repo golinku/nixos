@@ -14,6 +14,8 @@
     tree
     bitwarden-cli
     gcc
+    thunderbird
+    remmina
   ];
 
   home.sessionVariables = {
@@ -26,6 +28,7 @@
     shellAliases = {
       ne="nvim";
     };
+    # TODO have a way to pull scripts from Github for full automation
     initExtra = ''
       # Source Git completion and prompt scripts
       . $GIT_COMPLETION_SCRIPT 

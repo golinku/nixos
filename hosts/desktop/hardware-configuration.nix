@@ -46,14 +46,15 @@
 
   hardware.bluetooth = {
   enable = true;
-  package = pkgs.bluez5-experimental;
   powerOnBoot = true;
+  package = pkgs.bluez-experimental;
   settings = {
     General = {
-      Experimental = true; # Show battery charge of Bluetooth devices
+      Privacy = "device";
+      JustWorksRepairing = "always";
+      Class = "0x000100";
+      FastConnectable = "true";
       };
     };
   };
-
-  hardware.xpadneo.enable = true;
 }

@@ -10,11 +10,12 @@
       ./hardware-configuration.nix
       ../../modules/nvidia.nix
       ../../modules/gaming.nix
+      ../../modules/flatpak.nix
     ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 5; # number of generations shown
+  boot.loader.systemd-boot.configurationLimit = 10; # number of generations shown
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Set CPU to Performance
@@ -42,6 +43,7 @@
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
+  i18n.supportedLocales = [ "en_US.UTF-8/UTF-8" ];
 
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_US.UTF-8";
@@ -54,6 +56,9 @@
     LC_TELEPHONE = "en_US.UTF-8";
     LC_TIME = "en_US.UTF-8";
   };
+
+  # Push locale to systemd
+  systemd.settings.Manager.DefaultEnvironment = "LANG=en_US.UTF-8";
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm = {
@@ -107,7 +112,7 @@
   users.users.aaron = {
     isNormalUser = true;
     description = "aaron";
-    extraGroups = [ "networkmanager" "wheel" "realtime" "i2c" "plugdev" ];
+    extraGroups = [ "networkmanager" "wheel" "realtime" "i2c" "plugdev" "video"];
     packages = with pkgs; [
       ddcutil
       ffmpeg
@@ -141,6 +146,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+  linuxKernel.packages.linux_zen.xpadneo
   gparted
   freerdp
   helvum
