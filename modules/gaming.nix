@@ -20,7 +20,7 @@
   environment.systemPackages = with pkgs; [
     mangohud
     protonup-ng
-    xivlauncher
+    # xivlauncher  -We ge this from RB github
     xpad
     lsfg-vk
   ];

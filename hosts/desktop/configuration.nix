@@ -96,11 +96,12 @@
   users.users.aaron = {
     isNormalUser = true;
     description = "aaron";
-    extraGroups = [ "networkmanager" "wheel" "realtime" "i2c" "plugdev" "video"];
+    extraGroups = [ "networkmanager" "wheel" "realtime" "i2c" "plugdev" "video" "input"];
     packages = with pkgs; [
       ddcutil
       ffmpeg
       pulseaudio
+      pavucontrol
     ];
   };
 
@@ -109,9 +110,6 @@
     { domain = "@realtime"; type = "hard"; item = "rtprio"; value = "95"; }
     { domain = "@realtime"; type = "soft"; item = "rtprio"; value = "95"; }
   ];
-
-  # Install firefox.
-  programs.firefox.enable = true; # should not be here
 
   # Install goxlr utility
   services.goxlr-utility.enable = true;
@@ -126,13 +124,29 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     linuxKernel.packages.linux_zen.xpadneo
-    gparted # should not be here
-    freerdp # should not be here
-    helvum
+    crosspipe
     streamcontroller
   ];
 
   # List services that you want to enable:
+
+  systemd.user.services.streamcontroller = {
+    description = "StreamController Autostart";
+    # starting before pactl
+    after = [ "graphical-session.target" "pipewire-pulse.service" ];
+    wants = [ "pipewire-pulse.service" ];
+    wantedBy = [ "default.target" ];  
+
+    serviceConfig = {
+      Type = "simple";
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
+      ExecStart = "${pkgs.streamcontroller}/bin/streamcontroller";
+      Restart = "on-failure";
+      RestartSec = 2;
+      StandardOutput = "null";
+      StandardError = "null";
+    };
+  };
 
   # Additonal UDEV Rules
   services.udev.extraRules = ''
@@ -140,6 +154,9 @@
     SUBSYSTEM=="usb", ATTR{idVendor}=="1d6b", ATTR{idProduct}=="0002", MODE="0660", GROUP="plugdev"
     SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="082d", MODE="0660", GROUP="plugdev"
   '';
+
+  # Additional security Rules
+
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 

@@ -10,12 +10,10 @@
 
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" "i2c-dev" "v4l2loopback" ];
-  boot.extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback ];
-  boot.extraModprobeConfig = '' options v4l2loopback devices=1 video_nr=10 card_label="VirtualCam" exclusive_caps=1 '';
+  boot.kernelModules = [ "kvm-amd" "i2c-dev" ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/566430a0-58b4-45d3-a5da-59d6c2309b73";
+    { device = "/dev/disk/by-uuid/b12a3d9f-1041-42cb-aa39-64474ff5ec49";
       fsType = "ext4";
     };
 

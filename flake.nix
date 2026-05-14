@@ -9,9 +9,13 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    noctalia = {
+        url = "github:noctalia-dev/noctalia-shell";
+        inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, stylix, home-manager, ... }:
+  outputs = { self, nixpkgs, stylix, home-manager, noctalia, ... }:
     let
       system = "x86_64-linux";
 
@@ -28,6 +32,20 @@
                 users.aaron = import ./modules/home.nix;
                 backupFileExtension = "backup";
               };
+            }
+            {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  xwayland-satellite = prev.xwayland-satellite.overrideAttrs (old: {
+                    src = prev.fetchFromGitHub {
+                      owner = "Supreeeme";
+                      repo = "xwayland-satellite";
+                      rev = "10f985b84cdbcc3bbf35b3e7e43d1b2a84fa9ce2";
+                      hash = "sha256-M+bAeCCcjBnVk6w/4dIVvXvpJwOKnXjwi/lDbaN6Yws=";
+                    };
+                  });
+                })
+              ];
             }
           ];
         };
@@ -58,7 +76,13 @@
             ./modules/niri.nix
             ./modules/nvidia.nix
             ./modules/gaming.nix
-          ]; 
+            ./modules/flatpak.nix
+            ./modules/noctalia.nix
+          ];
+
+          specialArgs = {
+              inherit noctalia;
+          };
         };
       };
     };
